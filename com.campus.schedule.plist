@@ -7,7 +7,7 @@
   <key>ProgramArguments</key>
   <array>
     <string>/bin/bash</string>
-    <string>/Users/edwardjosephsuba/Documents/campus-schedule/run.sh</string>
+    <string>/Users/edwardjosephsuba/campus-schedule/run.sh</string>
   </array>
   <key>StartInterval</key>
   <integer>3600</integer>
@@ -16,8 +16,8 @@
   <key>ProcessType</key>
   <string>Background</string>
   <key>StandardOutPath</key>
-  <string>/Users/edwardjosephsuba/Documents/campus-schedule/run.log</string>
+  <string>/Users/edwardjosephsuba/campus-schedule/run.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/edwardjosephsuba/Documents/campus-schedule/run.log</string>
+  <string>/Users/edwardjosephsuba/campus-schedule/run.log</string>
 </dict>
 </plist>
