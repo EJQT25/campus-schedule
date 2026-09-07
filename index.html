@@ -1,0 +1,480 @@
+<title>CAMPUS Class Finder</title>
+<meta name="description" content="Find CAMPUS tuition class times with open spaces by level, subject and branch." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" />
+
+<style>
+:root{
+  --paper:#F7F5F0;
+  --raise:#FFFFFF;
+  --ink:#1F2A2E;
+  --ink-soft:#5A6A6E;
+  --line:#E4DFD4;
+  --line-soft:#EEEAE0;
+  --accent:#0E6E6E;
+  --accent-weak:#DBE8E5;
+  --on-accent:#FFFFFF;
+  --go:#3C7A4B;
+  --go-bg:#E4EEE2;
+  --wait:#9A6C24;
+  --wait-bg:#F3E8D4;
+  --full:#A8493C;
+  --full-bg:#F1DFDA;
+  --shadow:0 1px 2px rgba(31,42,46,.05),0 6px 20px rgba(31,42,46,.06);
+  --radius:12px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#14181A;
+    --raise:#1C2225;
+    --ink:#ECE7DC;
+    --ink-soft:#9AA7A9;
+    --line:#2C3438;
+    --line-soft:#242B2E;
+    --accent:#54B3AB;
+    --accent-weak:#1E3A38;
+    --on-accent:#0C1112;
+    --go:#7CB98A;
+    --go-bg:#1E2E23;
+    --wait:#D9AE6C;
+    --wait-bg:#33291A;
+    --full:#DC8A7C;
+    --full-bg:#331F1B;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14181A;
+  --raise:#1C2225;
+  --ink:#ECE7DC;
+  --ink-soft:#9AA7A9;
+  --line:#2C3438;
+  --line-soft:#242B2E;
+  --accent:#54B3AB;
+  --accent-weak:#1E3A38;
+  --on-accent:#0C1112;
+  --go:#7CB98A;
+  --go-bg:#1E2E23;
+  --wait:#D9AE6C;
+  --wait-bg:#33291A;
+  --full:#DC8A7C;
+  --full-bg:#331F1B;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:780px;margin:0 auto;padding:28px 20px 80px}
+
+/* ---- header ---- */
+header{margin-bottom:22px}
+.kicker{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 8px;
+}
+h1{
+  font-family:"Fraunces",Georgia,serif;
+  font-weight:600;
+  font-size:clamp(1.9rem,5vw,2.6rem);
+  line-height:1.08;
+  margin:0 0 10px;
+  text-wrap:balance;
+  letter-spacing:-.01em;
+}
+.lede{margin:0;color:var(--ink-soft);max-width:60ch;font-size:.98rem}
+.updated{
+  margin-top:12px;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  color:var(--ink-soft);
+}
+.updated b{color:var(--ink);font-weight:500}
+
+/* ---- filters ---- */
+.filters{
+  position:sticky;top:0;z-index:10;
+  background:color-mix(in srgb,var(--paper) 92%,transparent);
+  backdrop-filter:blur(8px);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:14px 14px 12px;
+  margin:18px 0 6px;
+  box-shadow:var(--shadow);
+}
+.fgroup{margin-bottom:11px}
+.fgroup:last-child{margin-bottom:0}
+.flabel{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-soft);display:block;margin-bottom:7px;
+}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  font:inherit;font-size:13px;
+  padding:5px 11px;border-radius:999px;
+  border:1px solid var(--line);
+  background:var(--raise);color:var(--ink);
+  cursor:pointer;transition:background .12s,border-color .12s,color .12s;
+  white-space:nowrap;
+}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{
+  background:var(--accent);border-color:var(--accent);color:var(--on-accent);
+}
+.chip.toggle[aria-pressed="true"]{background:var(--go);border-color:var(--go)}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.bar{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:12px;margin:20px 0 10px;flex-wrap:wrap;
+}
+.count{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft)}
+.count b{color:var(--ink);font-weight:500}
+.reset{
+  font:inherit;font-size:12.5px;background:none;border:none;
+  color:var(--accent);cursor:pointer;padding:0;text-decoration:underline;
+  text-underline-offset:3px;
+}
+.reset[hidden]{display:none}
+
+/* ---- results ---- */
+.band{margin:26px 0 10px}
+.band:first-of-type{margin-top:8px}
+.band h2{
+  font-family:"Fraunces",Georgia,serif;font-weight:600;
+  font-size:1.15rem;margin:0;padding-bottom:6px;
+  border-bottom:2px solid var(--ink);
+  display:flex;align-items:baseline;gap:10px;
+}
+.band h2 span{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:400;
+  color:var(--ink-soft);letter-spacing:.04em;
+}
+
+ul.list{list-style:none;margin:0;padding:0}
+li.row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:4px 14px;
+  padding:13px 2px;
+  border-bottom:1px solid var(--line-soft);
+}
+li.row:last-child{border-bottom:none}
+.when{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:.95rem;font-weight:500;
+  font-variant-numeric:tabular-nums;
+}
+.when .day{color:var(--ink)}
+.when .time{color:var(--ink-soft);margin-left:8px}
+.meta{
+  grid-column:1;
+  font-size:.85rem;color:var(--ink-soft);
+  display:flex;flex-wrap:wrap;gap:5px 10px;align-items:baseline;
+}
+.meta .subj{color:var(--ink);font-weight:600}
+.meta .lvl{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;
+  background:var(--line-soft);border-radius:5px;padding:1px 6px;color:var(--ink-soft);
+}
+.meta .tr{position:relative;padding-left:11px}
+.meta .tr::before{content:"·";position:absolute;left:2px;color:var(--ink-soft)}
+.meta .note{color:var(--wait)}
+.side{
+  grid-row:1 / span 2;grid-column:2;
+  display:flex;flex-direction:column;align-items:flex-end;gap:6px;
+  justify-content:center;
+}
+.branch{
+  font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;
+  letter-spacing:.03em;color:var(--accent);
+  background:var(--accent-weak);border-radius:6px;padding:2px 8px;
+}
+.avail{
+  font-size:11.5px;font-weight:600;white-space:nowrap;
+  border-radius:999px;padding:2px 9px;
+  display:inline-flex;align-items:center;gap:5px;
+}
+.avail::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.avail.go{color:var(--go);background:var(--go-bg)}
+.avail.wait{color:var(--wait);background:var(--wait-bg)}
+.avail.full{color:var(--full);background:var(--full-bg)}
+.avail.ask{color:var(--ink-soft);background:var(--line-soft)}
+.size{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-soft)}
+
+.empty{
+  text-align:center;padding:48px 20px;color:var(--ink-soft);
+  border:1px dashed var(--line);border-radius:var(--radius);
+}
+.empty b{color:var(--ink);display:block;margin-bottom:4px;font-weight:600}
+
+/* ---- legend ---- */
+footer{
+  margin-top:40px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:.82rem;color:var(--ink-soft);
+}
+footer h3{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px;font-weight:400;
+}
+footer p{margin:0 0 10px;max-width:62ch}
+.codes{display:flex;flex-wrap:wrap;gap:6px 8px;margin-bottom:16px}
+.codes code{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+  background:var(--line-soft);border-radius:5px;padding:2px 7px;color:var(--ink);
+}
+.keys{display:flex;flex-wrap:wrap;gap:14px}
+.keys span{display:inline-flex;align-items:center;gap:6px;font-size:.8rem}
+.keys i{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+@media (max-width:480px){
+  .wrap{padding:22px 14px 70px}
+  li.row{grid-template-columns:1fr auto;gap:4px 10px}
+  .side{gap:5px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{
+  .filters{display:none}
+  body{background:#fff}
+  .wrap{max-width:none}
+  li.row{break-inside:avoid}
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="kicker">CAMPUS &nbsp;/&nbsp; Term Schedule 2026</p>
+    <h1>Find a class with space</h1>
+    <p class="lede">Choose your child&rsquo;s level, then the subject and the branch that suits you. Every real-time class running this term is listed with its current class size.</p>
+    <p class="updated">Snapshot taken <b id="updated">7 September 2026</b> &middot; check with us before enrolling &mdash; times and spaces move.</p>
+  </header>
+
+  <div class="filters" id="filters">
+    <div class="fgroup">
+      <span class="flabel">Level</span>
+      <div class="chips" id="f-band"></div>
+    </div>
+    <div class="fgroup">
+      <span class="flabel">Subject</span>
+      <div class="chips" id="f-subject"></div>
+    </div>
+    <div class="fgroup">
+      <span class="flabel">Branch</span>
+      <div class="chips" id="f-outlet"></div>
+    </div>
+    <div class="fgroup">
+      <span class="flabel">Show</span>
+      <div class="chips">
+        <button class="chip toggle" id="f-space" aria-pressed="false" type="button">Only classes with space</button>
+        <button class="chip toggle" id="f-teacher" aria-pressed="true" type="button">Teacher names</button>
+        <button class="chip toggle" id="f-level" aria-pressed="true" type="button">Class codes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bar">
+    <span class="count" id="count"></span>
+    <button class="reset" id="reset" type="button" hidden>Clear filters</button>
+  </div>
+
+  <div id="results"></div>
+
+  <footer>
+    <h3>Branch codes</h3>
+    <div class="codes" id="codes"></div>
+    <p>Ask our front desk for the branch nearest you &mdash; full location names can be added to this page on request.</p>
+    <h3>What the labels mean</h3>
+    <div class="keys">
+      <span><i style="background:var(--go)"></i> Spaces open</span>
+      <span><i style="background:var(--wait)"></i> Filling up (6&ndash;7 enrolled)</span>
+      <span><i style="background:var(--full)"></i> Nearly full (8+)</span>
+      <span><i style="background:var(--ink-soft)"></i> Ask us / new class</span>
+    </div>
+    <p style="margin-top:14px">Tags such as <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--line-soft);padding:1px 6px;border-radius:5px">PLP</code> mark small-group programmes; <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--line-soft);padding:1px 6px;border-radius:5px">HCL</code> is Higher Chinese; <code style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--line-soft);padding:1px 6px;border-radius:5px">PSLE</code> / Intensive are exam-prep classes.</p>
+  </footer>
+</div>
+
+<script id="data" type="application/json">
+{"k":["band","subject","outlet","level","day","timing","teacher","count","note"],"rows":[["Primary 1","Chinese","CSQ","CL P1","Monday","4:00pm - 5:30pm","Yue Li",1,""],["Primary 1","Chinese","CSQ","CL","Saturday","10:45am - 12:15pm","Rui Xue",null,""],["Primary 1","Chinese","J8","CL P1","Friday","4:00pm - 5:30pm","Gao Miao",2,""],["Primary 1","Chinese","SC","CL P1","Tuesday","4:00pm - 5:30pm","Gao Miao",1,""],["Primary 1","Chinese","SEM","CL P1","Sunday","10:45am - 12:15pm","Yue Li",1,""],["Primary 1","English","CSQ","EL P1 PLP","Thursday","5:45pm - 7:15pm","Kiara",1,""],["Primary 1","English","SC","EL P1","Wednesday","4:00pm - 5:30pm","Mira",4,""],["Primary 1","English","SC","EL P1 PLP","Thursday","4:00pm - 5:30pm","Mira",2,""],["Primary 1","Math","CSQ","MA P1 PLP","Saturday","10:45am - 12:15pm","Foo Jiaxin",1,""],["Primary 1","Math","CSQ","MA P1 PLP","Sunday","1:15pm - 2:45pm","Lee Ting",1,""],["Primary 2","Chinese","CSQ","CL P2","Saturday","3:00pm - 4:30pm","Gao Miao",2,""],["Primary 2","Chinese","J8","CL P2","Saturday","9:00am - 10:30am","Shu Ran",2,""],["Primary 2","Chinese","PW","CL P2","Tuesday","4:00pm - 5:30pm","Yue Li",2,""],["Primary 2","Chinese","SEM","CL P2","Tuesday","7:30pm - 9:00pm","Shu Ran",2,""],["Primary 2","Chinese","SEM","CL P2 PLP","Sunday","4:45pm - 6:15pm","Yue Li",1,""],["Primary 2","English","CSQ","EL P2 PLP","Saturday","10:45am - 12:15pm","Pria",2,""],["Primary 2","English","PW","EL P2 PLP","Saturday","4:45pm - 6:15pm","Issac",1,""],["Primary 2","English","SEM","","Friday","7:30pm - 9:00pm","",null,""],["Primary 2","Math","CSQ","MA P2","Monday","5:45pm - 7:15pm","Jonathan",4,""],["Primary 2","Math","CSQ","MA P2","Tuesday","5:45pm - 7:15pm","Foo Jiaxin",1,""],["Primary 2","Math","CSQ","MA P2 PLP","Wednesday","4:00pm - 5:30pm","Louie",2,""],["Primary 2","Math","J8","","Friday","7:30pm - 9:00pm","",null,""],["Primary 2","Math","J8","MA P2 PLP","Sunday","9:00am - 10:30am","Bryan",1,""],["Primary 2","Math","SEM","MA P2 PLP","Wednesday","4:00pm - 5:30pm","Ken",2,""],["Primary 3","Chinese","CSQ","CL P1","Monday","4:00pm - 5:30pm","Yue Li",1,""],["Primary 3","Chinese","CSQ","CL","Wednesday","7:30pm - 9:00pm","Rui Xue",0,""],["Primary 3","Chinese","CSQ","CL P3","Saturday","1:15pm - 2:45pm","Gao Miao",2,""],["Primary 3","Chinese","J8","CL P3","Wednesday","5:45pm - 7:15pm","Shu Ran",1,""],["Primary 3","Chinese","J8","CL P3 0","Saturday","1:15pm - 2:45pm","Shu Ran",0,""],["Primary 3","Chinese","J8","CL P3 PLP","Sunday","10:45am - 12:15pm","Flora Lai",2,""],["Primary 3","Chinese","SEM","CL P3","Sunday","1:15pm - 2:45pm","Yue Li",1,""],["Primary 3","Chinese","USQ","CL P3","Tuesday","4:00pm - 5:30pm","Rui Xue",1,""],["Primary 3","English","CSQ","EL P3 PLP","Tuesday","4:00pm - 5:30pm","Cassandra",1,""],["Primary 3","English","CSQ","EL P3 PLP","Saturday","3:00pm - 4:30pm","Pria",3,""],["Primary 3","English","J8","EL P3","Sunday","1:15pm - 2:45pm","Issac (VIP)",2,""],["Primary 3","English","SEM","EL P3 PLP","Thursday","4:00pm - 5:30pm","Cassandra",1,""],["Primary 3","English","SEM","EL P3","Sunday","10:45am - 12:15pm","Pria",1,"Eunice (Relief 06/09)"],["Primary 3","Math","CSQ","MA P3","Monday","4:00pm - 5:30pm","Jonathan",3,""],["Primary 3","Math","CSQ","MA","Tuesday","7:30pm - 9:00pm","Foo Jiaxin",null,""],["Primary 3","Math","CSQ","MA P3 PLP","Wednesday","7:30pm - 9:00pm","Louie",3,""],["Primary 3","Math","J8","MA P3","Tuesday","5:45pm - 7:15pm","Skyler",3,""],["Primary 3","Math","PW","MA P3","Friday","4:00pm - 5:30pm","Brian",4,""],["Primary 3","Math","PW","MA P3","Sunday","3:00pm - 4:30pm","Jia Xin",1,""],["Primary 3","Math","SC","MA P3 PLP","Saturday","10:45am - 12:15pm","Bryan",3,""],["Primary 3","Math","SEM","MA P3 PLP","Thursday","5:45pm - 7:15pm","Bryan",0,""],["Primary 3","Math","USQ","MA P3 0","Wednesday","4:00pm - 5:30pm","Foo Jiaxin",0,""],["Primary 3","Science","CSQ","","Friday","4:00pm - 5:30pm","",null,""],["Primary 3","Science","CSQ","SC P3","Saturday","1:15pm - 2:45pm","Foo Jiaxin",3,""],["Primary 3","Science","J8","SC","Wednesday","4:00pm - 5:30pm","",0,""],["Primary 3","Science","J8","SC P3 PLP","Sunday","3:00pm - 4:30pm","Shi Qi",4,""],["Primary 3","Science","PW","SC P3 PLP","Monday","5:45pm - 7:15pm","Shi Qi",2,""],["Primary 3","Science","USQ","SC P3","Wednesday","5:45pm - 7:15pm","Skyler",1,""],["Primary 3","Science","USQ","SC P3 PLP","Saturday","4:45pm - 6:15pm","Aravindan",2,""],["Primary 4","Chinese","CSQ","CL P4","Saturday","4:45pm - 6:15pm","Rui Xue",3,""],["Primary 4","Chinese","J8","CL P4","Friday","5:45pm - 7:15pm","Gao Miao",2,""],["Primary 4","Chinese","J8","HCL P5","Saturday","4:45pm - 6:15pm","Shu Ran",1,""],["Primary 4","Chinese","J8","","Sunday","4:45pm - 6:15pm","",null,""],["Primary 4","Chinese","PW","CL P4","Friday","5:45pm - 7:15pm","Yue Li",1,""],["Primary 4","Chinese","PW","CL P4","Saturday","3:00pm - 4:30pm","Yue Li",2,""],["Primary 4","Chinese","SC","CL P4","Monday","5:45pm - 7:15pm","Flora Lai",1,""],["Primary 4","Chinese","SC","CL P4","Tuesday","7:30pm - 9:00pm","Gao Miao",1,""],["Primary 4","Chinese","SC","CL P4","Sunday","10:45am - 12:15pm","Rui Xue",1,""],["Primary 4","English","CSQ","EL P4 PLP","Monday","5:45pm - 7:15pm","Kiara",1,""],["Primary 4","English","CSQ","EL P4 PLP","Wednesday","4:00pm - 5:30pm","Pria",1,""],["Primary 4","English","GH","EL P4","Saturday","1:15pm - 2:45pm","Mira",7,""],["Primary 4","English","J8","EL P4","Sunday","10:45am - 12:15pm","Isaac",6,""],["Primary 4","English","SC","EL P4 PLP","Wednesday","5:45pm - 7:15pm","Mira",1,""],["Primary 4","English","SEM","EL P4","Saturday","10:45am - 12:15pm","Rebecca",1,""],["Primary 4","English","SEM","EL P4","Sunday","9:00am - 10:30am","Pria",1,"Eunice (Relief 06/09)"],["Primary 4","English","USQ","EL P4 PLP","Monday","4:00pm - 5:30pm","Pria",1,""],["Primary 4","Math","CSQ","MA P4 PLP","Friday","7:30pm - 9:00pm","Jia Xin",1,""],["Primary 4","Math","CSQ","MA P4","Sunday","1:15pm - 2:45pm","Jonathan",2,""],["Primary 4","Math","J8","MA P4","Thursday","7:30pm - 9:00pm","Skyler",4,"Anna (Relief 10/09)"],["Primary 4","Math","SC","MA P4","Monday","4:00pm - 5:30pm","Bryan",2,""],["Primary 4","Math","SEM","MA P4 PLP","Wednesday","5:45pm - 7:15pm","Ken",1,""],["Primary 4","Math","SEM","MA P4 PLP","Sunday","1:15pm - 2:45pm","Ken",1,""],["Primary 4","Math","USQ","MA P4","Friday","5:45pm - 7:15pm","Darren",1,"Patrick Lim (Start 04/09)"],["Primary 4","Math","USQ","MA P4 PLP","Saturday","4:45pm - 6:15pm","Ken",3,""],["Primary 4","Science","CSQ","SC P4","Thursday","5:45pm - 7:15pm","Tiffany",4,""],["Primary 4","Science","J8","SC P4 PLP","Monday","4:00pm - 5:30pm","Jason",5,""],["Primary 4","Science","J8","SC","Wednesday","7:30pm - 9:00pm","",0,""],["Primary 4","Science","PW","SC P4 PLP","Monday","4:00pm - 5:30pm","Shi Qi",1,""],["Primary 4","Science","PW","SC P4","Thursday","4:00pm - 5:30pm","Shi Qi",1,"(No Class 10/09)"],["Primary 4","Science","PW","SC P4","Sunday","4:45pm - 6:15pm","Jia Xin",1,""],["Primary 4","Science","SC","SC P4","Saturday","4:45pm - 6:15pm","Skyler",5,""],["Primary 4","Science","USQ","SC P4 PLP","Friday","4:00pm - 5:30pm","Junguang",3,""],["Primary 5","Chinese","CSQ","CL P5","Wednesday","5:45pm - 7:15pm","Rui Xue",3,""],["Primary 5","Chinese","CSQ","CL P1","Saturday","3:00pm - 4:30pm","Rui Xue",0,""],["Primary 5","Chinese","CSQ","CL P5","Saturday","9:00am - 10:30am","Gao Miao",2,""],["Primary 5","Chinese","CSQ","CL P5","Sunday","4:45pm - 6:15pm","Gao Miao",3,""],["Primary 5","Chinese","GH","CL P5","Friday","7:30pm - 9:00pm","Rui Xue",1,""],["Primary 5","Chinese","J8","CL P5 PLP","Wednesday","7:30pm - 9:00pm","Shu Ran",2,""],["Primary 5","Chinese","J8","CL P5","Saturday","10:45am - 12:15pm","Shu Ran",3,""],["Primary 5","Chinese","J8","CL P5 PLP","Sunday","3:00pm - 4:30pm","Flora Lai",2,""],["Primary 5","Chinese","PW","P5 HCL","Friday","4:00pm - 5:30pm","Yue Li",1,""],["Primary 5","Chinese","SC","CL P5","Sunday","4:45pm - 6:15pm","Rui Xue",1,""],["Primary 5","Chinese","SEM","CL P5","Tuesday","4:00pm - 5:30pm","Shu Ran",1,""],["Primary 5","Chinese","SEM","CL P5","Sunday","3:00pm - 4:30pm","Yue Li",1,""],["Primary 5","Chinese","USQ","CL P1 O","Tuesday","7:30pm - 9:00pm","Rui Xue",0,""],["Primary 5","Chinese","USQ","CL P5","Sunday","1:15pm - 2:45pm","Shu Ran",1,""],["Primary 5","English","CSQ","EL P5 PLP","Tuesday","2:30pm - 4:00pm","Cassandra",1,""],["Primary 5","English","CSQ","","Thursday","4:00pm - 5:30pm","",null,""],["Primary 5","English","CSQ","EL P5","Friday","7:30pm - 9:00pm","Tahira",4,"Eunice (Relief 18/09)"],["Primary 5","English","CSQ","EL P5 PLP","Saturday","1:15pm - 2:45pm","Pria",4,""],["Primary 5","English","GH","EL P5 PLP","Saturday","3:00pm - 4:30pm","Mira",4,""],["Primary 5","English","J8","EL P5","Tuesday","4:00pm - 5:30pm","Mira",2,""],["Primary 5","English","J8","EL P5 PLP","Wednesday","5:45pm - 7:15pm","",null,""],["Primary 5","English","SC","EL P5 PLP","Thursday","5:45pm - 7:15pm","MIra",1,""],["Primary 5","Math","CSQ","MA P5","Friday","5:45pm - 7:15pm","Jia Xin",2,""],["Primary 5","Math","CSQ","MA P5","Saturday","3:00pm - 4:30pm","Foo Jia Xin",2,""],["Primary 5","Math","CSQ","MA P5","Sunday","9:00am - 10:30am","Jonathan",1,""],["Primary 5","Math","J8","MA P5","Tuesday","7:30pm - 9:00pm","Skyler",2,""],["Primary 5","Math","J8","","Friday","4:00pm - 5:30pm","",null,""],["Primary 5","Math","J8","MA P5","Sunday","10:45am - 12:15pm","Bryan",4,""],["Primary 5","Math","SC","MA P5 PLP","Saturday","4:45pm - 6:15pm","Bryan",1,""],["Primary 5","Math","SEM","MA P5 PLP","Saturday","1:15pm - 2:45pm","Audrey",2,""],["Primary 5","Math","SEM","MA P5","Sunday","3:00pm - 4:30pm","Ken",6,""],["Primary 5","Math","USQ","MA P5","Wednesday","5:45pm - 7:15pm","Foo Jiaxin",2,""],["Primary 5","Math","USQ","MA P5","Thursday","4:00pm - 5:30pm","Ken",0,""],["Primary 5","Science","CSQ","SC P5","Thursday","7:30pm - 9:00pm","Tiffany",2,""],["Primary 5","Science","CSQ","SC P5","Sunday","1:15pm - 2:45pm","Aravindan",2,""],["Primary 5","Science","J8","SC P5","Sunday","1:15pm - 2:45pm","Shi Qi",4,""],["Primary 5","Science","SC","SC P5","Saturday","9:00am - 10:30am","Skyler",2,""],["Primary 5","Science","USQ","SC P5","Monday","4:00pm - 5:30pm","Junguang",3,""],["Primary 5","Science","USQ","SC P5","Wednesday","4:00pm - 5:30pm","Skyler",2,""],["Primary 5","Science","USQ","SC P5","Friday","5:45pm - 7:15pm","Junguang",3,""],["Primary 6","Chinese","CSQ","CL P6","Monday","5:45pm - 7:15pm","Yue Li",1,""],["Primary 6","Chinese","CSQ","HCL P6","Thursday","5:45pm - 7:15pm","Gao Miao",1,""],["Primary 6","Chinese","CSQ","CL P6","Thursday","7:30pm - 9:00pm","Gao Miao",2,""],["Primary 6","Chinese","CSQ","CL P6","Saturday","1:15pm - 2:45pm","Rui Xue",4,""],["Primary 6","Chinese","GH","CL PSLE Intensive","Thursday","4:00pm - 5:30pm","Shu Ran",2,""],["Primary 6","Chinese","GH","CL P6","Friday","5:45pm - 7:15pm","Rui Xue",2,""],["Primary 6","Chinese","J8","CL P6","Wednesday","4:00pm - 5:30pm","Shu Ran",4,""],["Primary 6","Chinese","J8","P6 HCL","Friday","7:30pm - 9:00pm","Gao Miao",1,""],["Primary 6","Chinese","J8","CL P6","Saturday","3:00pm - 4:30pm","Shu Ran",3,""],["Primary 6","Chinese","PW","CL PSLE Intensive","Tuesday","7:30pm - 9:00pm","Yue Li",0,""],["Primary 6","Chinese","PW","CL P6","Saturday","1:15pm - 2:45pm","Yue Li",3,""],["Primary 6","Chinese","SC","CL P6","Tuesday","5:45pm - 7:15pm","Gao Miao",3,""],["Primary 6","Chinese","SC","CL PSLE","Sunday","1:15pm - 2:45pm","Rui Xue",2,""],["Primary 6","Chinese","SC","CL P6","Sunday","3:00pm - 4:30pm","Rui Xue",3,""],["Primary 6","Chinese","SEM","HCL P6","Sunday","9:00am - 10:30am","Yue Li",1,""],["Primary 6","Chinese","USQ","CL P5","Tuesday","5:45pm - 7:15pm","Rui Xue",2,""],["Primary 6","Chinese","USQ","HCL P6","Sunday","4:45pm - 6:15pm","Shu Ran",1,""],["Primary 6","English","CSQ","EL P6 PLP","Wednesday","7:30pm - 9:00pm","Pria",3,""],["Primary 6","English","CSQ","EL P6","Friday","5:45pm - 7:15pm","Tahira",3,""],["Primary 6","English","GH","EL P6","Saturday","4:45pm - 6:15pm","Mira",5,""],["Primary 6","English","GH","EL P6","Sunday","5:00pm - 6:30pm","Mira",4,""],["Primary 6","English","J8","","Tuesday","2:30pm - 4:00pm","",null,""],["Primary 6","English","J8","EL P6","Tuesday","5:45pm - 7:15pm","Mira",4,""],["Primary 6","English","J8","EL P6 WTW","Tuesday","7:30pm - 9:00pm","Mira",3,""],["Primary 6","English","J8","","Wednesday","7:30pm - 9:00pm","",null,""],["Primary 6","English","J8","EL P6","Sunday","3:00pm - 4:30pm","Isaac",7,""],["Primary 6","English","PW","EL P6 PLP","Wednesday","5:45pm - 7:15pm","Issac",3,""],["Primary 6","English","PW","EL PSLE Intensive","Friday","4:00pm - 5:30pm","Issac",2,""],["Primary 6","English","SC","EL P6 0","Wednesday","7:30pm - 9:00pm","Mira",0,""],["Primary 6","English","SC","EL P6","Saturday","1:15pm - 2:45pm","Nicholas",3,""],["Primary 6","English","SEM","EL P6","Sunday","3:00pm - 4:30pm","Pria",3,"Tiffany (Relief 06/09)"],["Primary 6","English","USQ","EL","Saturday","10:45am - 12:15pm","Mira",0,""],["Primary 6","Math","CSQ","MA P6 PLP","Monday","7:30pm - 9:00pm","Jonathan",2,""],["Primary 6","Math","CSQ","MA P6 PSLE","Thursday","5:45pm - 7:15pm","Bryan",4,""],["Primary 6","Math","CSQ","MA P6","Friday","4:00pm - 5:30pm","Jia Xin",2,""],["Primary 6","Math","CSQ","MA P6","Sunday","10:45am - 12:15pm","Jonathan",3,""],["Primary 6","Math","J8","MA PSLE","Tuesday","4:00pm - 5:30pm","Skyler",4,""],["Primary 6","Math","J8","MA P6","Thursday","5:45pm - 7:15pm","Skyler",4,"Anna (Relief 10/09)"],["Primary 6","Math","J8","","Friday","5:45pm - 7:15pm","",null,""],["Primary 6","Math","J8","MA P6","Sunday","1:15pm - 2:45pm","Bryan",4,""],["Primary 6","Math","SC","MA P6","Saturday","9:00am - 10:30am","Brian",5,""],["Primary 6","Math","SEM","MA P6 PLP","Wednesday","7:30pm - 9:00pm","Ken",1,""],["Primary 6","Math","SEM","MA P6","Saturday","3:00pm - 4:30pm","Audrey",3,""],["Primary 6","Math","SEM","MA P6 PLP","Sunday","4:45pm - 6:15pm","Ken",2,""],["Primary 6","Math","USQ","MA P6 PLP","Friday","4:00pm - 5:30pm","Darren",1,"Patrick Lim (Start 04/09)"],["Primary 6","Math","USQ","MA P6","Saturday","1:15pm - 2:45pm","Ken",5,""],["Primary 6","Science","CSQ","SC P6","Thursday","4:00pm - 5:30pm","Tiffany",3,""],["Primary 6","Science","CSQ","SC P6","Sunday","4:45pm - 6:15pm","Aravindan",1,""],["Primary 6","Science","J8","SC P6","Monday","5:45pm - 7:15pm","Jason",5,""],["Primary 6","Science","J8","SC P6","Wednesday","5:45pm - 7:15pm","Jason",3,""],["Primary 6","Science","J8","SC P6","Sunday","4:45pm - 6:15pm","Shi Qi",5,""],["Primary 6","Science","PW","SC P6 PLP","Wednesday","4:00pm - 5:30pm","Shi Qi",3,""],["Primary 6","Science","PW","SC P6 PLP","Thursday","5:45pm - 7:15pm","Shi Qi",1,"(No Class 10/09)"],["Primary 6","Science","PW","SC P6","Sunday","9:00am - 10:30am","JIa Xin",2,""],["Primary 6","Science","SC","SC P6","Friday","4:00pm - 5:30pm","Shi Qi",2,""],["Primary 6","Science","SC","SC P6","Saturday","10:45am - 12:15pm","Skyler",4,""],["Primary 6","Science","SEM","SC P6","Thursday","7:30pm - 9:00pm","Cassandra",3,""],["Primary 6","Science","SEM","SC P6","Saturday","1:15pm - 2:45pm","Jason",2,""],["Primary 6","Science","USQ","SC P3","Wednesday","5:45pm - 7:15pm","Skyler",1,""],["Primary 6","Science","USQ","SC P6","Friday","7:30pm - 9:00pm","Junguang",6,""],["Primary 6","Science","USQ","SC P6","Saturday","3:00pm - 4:30pm","Aravindan",8,""],["Secondary 1","Chinese","CSQ","CL S1","Saturday","10:45am - 12:15pm","Gao Miao",1,""],["Secondary 1","English","CSQ","EL S1","Wednesday","5:45pm - 7:15pm","Pria",2,""],["Secondary 1","English","CSQ","EL S1","Sunday","3:00pm - 4:30pm","Angeline",1,""],["Secondary 1","Math","CSQ","MA S1","Sunday","3:00pm - 4:30pm","Lee Ting",1,""],["Secondary 2","Chinese","CSQ","CL S2","Sunday","10:45am - 12:15pm","Gao Miao",1,""],["Secondary 2","English","J8","","Thursday","5:45pm - 7:15pm","",null,""],["Secondary 2","English","J8","EL S2","Sunday","4:45pm - 6:15pm","Isaac",1,""],["Secondary 2","Math","CSQ","MA S2E PLP","Monday","4:00pm - 5:30pm","Louie",1,""],["Secondary 2","Math","CSQ","MA","Saturday","4:45pm - 6:15pm","Louie",null,""],["Secondary 2","Science","CSQ","SC S2","Monday","7:30pm - 9:00pm","Jay",2,""],["Secondary 2","Science","CSQ","SC S2","Sunday","3:00pm - 4:30pm","Jay",2,""],["Secondary 3","English","CSQ","EL S3","Monday","7:30pm - 9:00pm","Kiara",1,""],["Secondary 3","Math","CSQ","A.Math S3","Thursday","5:45pm - 7:15pm","Xavier",1,""],["Secondary 3","Math","CSQ","MA","Sunday","10:45am - 12:15pm","Louie",null,""],["Secondary 3","Science","CSQ","Pure Phys S3","Monday","5:45pm - 7:15pm","Jay",2,""],["Secondary 4","Math","CSQ","MA S4E","Friday","4:00pm - 5:30pm","Jonathan",2,""],["Secondary 4","Math","CSQ","MA S4 A. MATH","Sunday","3:00pm - 4:30pm","Jonathan",2,""],["Secondary 4","Science","CSQ","Pure Phys S4","Sunday","1:15pm - 2:45pm","Jay",1,""],["Secondary 4","Science","J8","BP","Friday","5:45pm - 7:15pm","Tony",null,""]]}
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var raw = JSON.parse(document.getElementById("data").textContent);
+  var K = raw.k;
+  var DATA = raw.rows.map(function(r){
+    var o = {}; K.forEach(function(k,i){ o[k] = r[i]; }); return o;
+  });
+
+  var DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  var BANDS = ["Primary 1","Primary 2","Primary 3","Primary 4","Primary 5","Primary 6",
+               "Secondary 1","Secondary 2","Secondary 3","Secondary 4"];
+  var SUBJECTS = ["English","Math","Chinese","Science"];
+  var OUTLETS = ["CSQ","GH","J8","PW","SC","SEM","USQ"];
+
+  var state = { band:"", subject:"", outlet:"", spaceOnly:false, showTeacher:true, showLevel:true };
+  try {
+    var saved = JSON.parse(localStorage.getItem("campus.filters") || "{}");
+    if (saved && typeof saved === "object") Object.assign(state, saved);
+  } catch(e){}
+
+  function save(){
+    try { localStorage.setItem("campus.filters", JSON.stringify(state)); } catch(e){}
+  }
+
+  function shortBand(b){ return b.replace("Primary ","P").replace("Secondary ","S"); }
+
+  function cleanLevel(s, d){
+    s = (s || "").replace(/\s+0$/,"").trim();
+    return s;
+  }
+  function cleanTeacher(t){
+    t = (t || "").trim();
+    if (!t || !/[A-Za-z]/.test(t)) return "";
+    return t;
+  }
+
+  // availability bucket — no hard capacity is known, so this is a guide only
+  function avail(c){
+    if (c === null || c === undefined || c === "") return {cls:"ask", label:"Ask us"};
+    if (c === 0) return {cls:"go", label:"New class"};
+    if (c <= 5) return {cls:"go", label:"Spaces open"};
+    if (c <= 7) return {cls:"wait", label:"Filling up"};
+    return {cls:"full", label:"Nearly full"};
+  }
+
+  function makeChips(hostId, values, key, withAll){
+    var host = document.getElementById(hostId);
+    host.innerHTML = "";
+    var list = withAll ? [""].concat(values) : values;
+    list.forEach(function(v){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = v === "" ? "All" : (key === "band" ? v.replace("Primary ","Primary ").replace("Secondary ","Secondary ") : v);
+      b.setAttribute("aria-pressed", String(state[key] === v));
+      b.addEventListener("click", function(){
+        state[key] = (state[key] === v) ? "" : v;
+        save(); syncChips(); render();
+      });
+      host.appendChild(b);
+    });
+  }
+
+  function syncChips(){
+    [["f-band","band"],["f-subject","subject"],["f-outlet","outlet"]].forEach(function(p){
+      var host = document.getElementById(p[0]);
+      Array.prototype.forEach.call(host.children, function(btn){
+        var v = btn.textContent === "All" ? "" : btn.textContent;
+        btn.setAttribute("aria-pressed", String(state[p[1]] === v));
+      });
+    });
+    document.getElementById("f-space").setAttribute("aria-pressed", String(state.spaceOnly));
+    document.getElementById("f-teacher").setAttribute("aria-pressed", String(state.showTeacher));
+    document.getElementById("f-level").setAttribute("aria-pressed", String(state.showLevel));
+    var any = state.band || state.subject || state.outlet || state.spaceOnly || !state.showTeacher || !state.showLevel;
+    document.getElementById("reset").hidden = !any;
+  }
+
+  function passes(row){
+    if (state.band && row.band !== state.band) return false;
+    if (state.subject && row.subject !== state.subject) return false;
+    if (state.outlet && row.outlet !== state.outlet) return false;
+    if (state.spaceOnly){
+      var c = row.count;
+      if (c !== null && c !== "" && c >= 6) return false;
+    }
+    return true;
+  }
+
+  function render(){
+    var results = document.getElementById("results");
+    var rows = DATA.filter(passes);
+
+    document.getElementById("count").innerHTML =
+      "<b>" + rows.length + "</b> class" + (rows.length === 1 ? "" : "es") +
+      (rows.length ? " shown" : "");
+
+    if (!rows.length){
+      results.innerHTML =
+        '<div class="empty"><b>No classes match those choices.</b>' +
+        'Try removing the branch or the &ldquo;with space&rdquo; filter, or ask us about opening a new class.</div>';
+      return;
+    }
+
+    rows.sort(function(a,b){
+      var x = BANDS.indexOf(a.band) - BANDS.indexOf(b.band); if (x) return x;
+      x = SUBJECTS.indexOf(a.subject) - SUBJECTS.indexOf(b.subject); if (x) return x;
+      x = DAYS.indexOf(a.day) - DAYS.indexOf(b.day); if (x) return x;
+      return a.timing.localeCompare(b.timing);
+    });
+
+    var html = "";
+    var curBand = null;
+    rows.forEach(function(r){
+      if (r.band !== curBand){
+        if (curBand !== null) html += "</ul></section>";
+        curBand = r.band;
+        var n = rows.filter(function(z){ return z.band === curBand; }).length;
+        html += '<section class="band"><h2>' + curBand +
+                ' <span>' + n + ' class' + (n===1?"":"es") + '</span></h2><ul class="list">';
+      }
+      var a = avail(r.count);
+      var lvl = cleanLevel(r.level, r.band);
+      var tr = cleanTeacher(r.teacher);
+      var sizeTxt = (typeof r.count === "number") ? (r.count + " enrolled") : "";
+      html += '<li class="row">' +
+        '<div class="when"><span class="day">' + r.day + '</span>' +
+          '<span class="time">' + r.timing + '</span></div>' +
+        '<div class="meta">' +
+          '<span class="subj">' + r.subject + '</span>' +
+          (lvl && state.showLevel ? '<span class="lvl">' + lvl + '</span>' : '') +
+          (tr && state.showTeacher ? '<span class="tr">' + tr + '</span>' : '') +
+          (r.note ? '<span class="note">' + r.note + '</span>' : '') +
+        '</div>' +
+        '<div class="side">' +
+          '<span class="branch">' + r.outlet + '</span>' +
+          '<span class="avail ' + a.cls + '">' + a.label + '</span>' +
+          (sizeTxt ? '<span class="size">' + sizeTxt + '</span>' : '') +
+        '</div>' +
+      '</li>';
+    });
+    html += "</ul></section>";
+    results.innerHTML = html;
+  }
+
+  makeChips("f-band", BANDS, "band", true);
+  makeChips("f-subject", SUBJECTS, "subject", true);
+  makeChips("f-outlet", OUTLETS, "outlet", true);
+
+  document.getElementById("f-space").addEventListener("click", function(){
+    state.spaceOnly = !state.spaceOnly; save(); syncChips(); render();
+  });
+  document.getElementById("f-teacher").addEventListener("click", function(){
+    state.showTeacher = !state.showTeacher; save(); syncChips(); render();
+  });
+  document.getElementById("f-level").addEventListener("click", function(){
+    state.showLevel = !state.showLevel; save(); syncChips(); render();
+  });
+  document.getElementById("reset").addEventListener("click", function(){
+    state = { band:"", subject:"", outlet:"", spaceOnly:false, showTeacher:true, showLevel:true };
+    save(); syncChips(); render();
+  });
+
+  var codesHost = document.getElementById("codes");
+  OUTLETS.forEach(function(o){
+    var c = document.createElement("code"); c.textContent = o; codesHost.appendChild(c);
+  });
+
+  syncChips();
+  render();
+})();
+</script>

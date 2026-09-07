@@ -1,0 +1,6 @@
+.chrome-profile/
+.venv/
+run.log
+*.csv
+__pycache__/
+.DS_Store
