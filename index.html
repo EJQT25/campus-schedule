@@ -275,6 +275,7 @@ footer p{margin:0 0 10px;max-width:62ch}
         <button class="chip toggle" id="f-space" aria-pressed="false" type="button">Only classes with space</button>
         <button class="chip toggle" id="f-teacher" aria-pressed="true" type="button">Teacher names</button>
         <button class="chip toggle" id="f-level" aria-pressed="true" type="button">Class codes</button>
+        <button class="chip toggle" id="f-ask" aria-pressed="true" type="button">&ldquo;Ask us&rdquo; classes</button>
       </div>
     </div>
   </div>
@@ -320,7 +321,7 @@ footer p{margin:0 0 10px;max-width:62ch}
   var SUBJECTS = ["English","Math","Chinese","Science"];
   var OUTLETS = ["CSQ","GH","J8","PW","SC","SEM","USQ"];
 
-  var state = { band:"", subject:"", outlet:"", spaceOnly:false, showTeacher:true, showLevel:true };
+  var state = { band:"", subject:"", outlet:"", spaceOnly:false, showTeacher:true, showLevel:true, showAsk:true };
   try {
     var saved = JSON.parse(localStorage.getItem("campus.filters") || "{}");
     if (saved && typeof saved === "object") Object.assign(state, saved);
@@ -380,7 +381,8 @@ footer p{margin:0 0 10px;max-width:62ch}
     document.getElementById("f-space").setAttribute("aria-pressed", String(state.spaceOnly));
     document.getElementById("f-teacher").setAttribute("aria-pressed", String(state.showTeacher));
     document.getElementById("f-level").setAttribute("aria-pressed", String(state.showLevel));
-    var any = state.band || state.subject || state.outlet || state.spaceOnly || !state.showTeacher || !state.showLevel;
+    document.getElementById("f-ask").setAttribute("aria-pressed", String(state.showAsk));
+    var any = state.band || state.subject || state.outlet || state.spaceOnly || !state.showTeacher || !state.showLevel || !state.showAsk;
     document.getElementById("reset").hidden = !any;
   }
 
@@ -391,6 +393,9 @@ footer p{margin:0 0 10px;max-width:62ch}
     if (state.spaceOnly){
       var c = row.count;
       if (c !== null && c !== "" && c >= 6) return false;
+    }
+    if (!state.showAsk && (row.count === null || row.count === undefined || row.count === "")){
+      return false;
     }
     return true;
   }
@@ -464,8 +469,11 @@ footer p{margin:0 0 10px;max-width:62ch}
   document.getElementById("f-level").addEventListener("click", function(){
     state.showLevel = !state.showLevel; save(); syncChips(); render();
   });
+  document.getElementById("f-ask").addEventListener("click", function(){
+    state.showAsk = !state.showAsk; save(); syncChips(); render();
+  });
   document.getElementById("reset").addEventListener("click", function(){
-    state = { band:"", subject:"", outlet:"", spaceOnly:false, showTeacher:true, showLevel:true };
+    state = { band:"", subject:"", outlet:"", spaceOnly:false, showTeacher:true, showLevel:true, showAsk:true };
     save(); syncChips(); render();
   });
 
