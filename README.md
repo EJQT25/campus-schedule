@@ -21,7 +21,7 @@ after that, in a private profile under `.chrome-profile/` (git-ignored).
 ## First-time setup
 
 ```
-bash ~/Documents/campus-schedule/setup.sh
+bash ~/campus-schedule/setup.sh
 ```
 
 It installs Playwright into `.venv/`, creates a **public** GitHub repo

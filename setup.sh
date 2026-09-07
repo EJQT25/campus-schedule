@@ -1,6 +1,6 @@
 #!/bin/bash
 # One-time setup for the hourly CAMPUS schedule page.
-# Run once:   bash ~/Documents/campus-schedule/setup.sh
+# Run once:   bash ~/campus-schedule/setup.sh
 set -e
 cd "$(dirname "$0")"
 DIR="$(pwd)"
