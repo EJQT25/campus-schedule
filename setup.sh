@@ -6,6 +6,15 @@ cd "$(dirname "$0")"
 DIR="$(pwd)"
 PLIST="$HOME/Library/LaunchAgents/com.campus.schedule.plist"
 
+case "$DIR" in
+  "$HOME"/Documents/*|"$HOME"/Downloads/*|"$HOME"/Desktop/*)
+    echo "ERROR: macOS blocks background jobs from running here ($DIR)."
+    echo "Move this folder to e.g. ~/campus-schedule and run setup again."
+    exit 1;;
+esac
+gh auth status >/dev/null 2>&1 || { echo "Run 'gh auth login' first."; exit 1; }
+gh auth setup-git >/dev/null 2>&1 || true
+
 echo "==> 1/5  Python environment + Playwright"
 [ -d .venv ] || python3 -m venv .venv
 ./.venv/bin/pip -q install --upgrade pip
@@ -42,12 +51,28 @@ echo "    First build + publish ..."
 ./.venv/bin/python fetch_and_build.py
 
 echo "==> 5/5  Hourly schedule (launchd)"
-cp com.campus.schedule.plist "$PLIST"
+# Generate the plist for THIS machine's path (works under any username/location)
+cat > "$PLIST" <<PLIST_EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.campus.schedule</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>${DIR}/run.sh</string></array>
+  <key>StartInterval</key><integer>3600</integer>
+  <key>RunAtLoad</key><true/>
+  <key>ProcessType</key><string>Background</string>
+  <key>StandardOutPath</key><string>${DIR}/run.log</string>
+  <key>StandardErrorPath</key><string>${DIR}/run.log</string>
+</dict>
+</plist>
+PLIST_EOF
 launchctl unload "$PLIST" 2>/dev/null || true
 launchctl load "$PLIST"
 
 echo
-echo "All set. The page rebuilds every hour while your Mac is awake."
+echo "All set. The page rebuilds every hour while this Mac is awake."
 echo "Live link to share:  $LIVE"
 echo "(GitHub can take 1-2 minutes to publish the first time.)"
 echo "Logs: $DIR/run.log     Stop the job: launchctl unload \"$PLIST\""

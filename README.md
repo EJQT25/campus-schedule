@@ -54,6 +54,23 @@ happens on wake).
 | `run.sh` / `com.campus.schedule.plist` | the launchd hourly wrapper |
 | `setup.sh` | one-time installer |
 
+## Moving it to another Mac (e.g. an always-on machine)
+
+On the new Mac (needs Google Chrome + `gh auth login` done once):
+
+```
+git clone https://github.com/EJQT25/campus-schedule.git ~/campus-schedule
+cd ~/campus-schedule && bash setup.sh
+```
+
+`setup.sh` builds the venv, does the one-time Google sign-in, and installs the
+hourly job with the correct paths for that machine. Then turn it off on the old
+Mac so it doesn't run in two places:
+
+```
+bash ~/campus-schedule/uninstall.sh
+```
+
 ## If the sheet moves
 
 Set `CAMPUS_SHEET_ID` / `CAMPUS_SHEET_GID` as environment variables, or edit the
