@@ -116,8 +116,10 @@ def inject(recs, html_path=HTML_PATH):
         lambda m: m.group(1) + "\n" + payload + "\n" + m.group(2),
         html, count=1, flags=re.S)
     today = datetime.date.today().strftime("%-d %B %Y")
+    stamp = datetime.datetime.now().strftime("%-d %B %Y, %-I:%M%p").replace(
+        "AM", "am").replace("PM", "pm")
     html, n2 = re.subn(r'(<b id="updated">).*?(</b>)',
-                       lambda m: m.group(1) + today + m.group(2), html, count=1)
+                       lambda m: m.group(1) + stamp + m.group(2), html, count=1)
     if n1 != 1 or n2 != 1:
         raise ValueError("Could not find the data block in " + html_path)
     with open(html_path, "w", encoding="utf-8") as f:
